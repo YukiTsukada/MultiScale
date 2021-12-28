@@ -1,0 +1,185 @@
+//import org.micromanager.data.Datastore;
+//import org.micromanager.internal.MMStudio;
+import org.micromanager.data.Coordinates;
+import ij.process.ShortProcessor;
+import ij.process.*;
+import ij.measure.*;
+import ij.ImagePlus;
+import ij.*;
+import ij.plugin.PlugIn;
+import java.awt.color.ColorSpace;
+import java.awt.image.*;
+import ij.plugin.filter;
+
+
+// Parameters
+numFrames = 10;
+numSlices = 1;
+intervalMs = 1000;
+channelGroup = "Channel";
+int[] exposures = {100,100};
+String [] channels = {"FITC","TRITC"};
+String [] shutters = {"Epi-Shutter","Arduino-Shutter"};
+//TODO: numPositions = [get positionlist length]
+//Color[] colors = {Color.GREEN,Color.RED};
+
+
+// File locations (high reso)
+dirName = "D:/MSM temp/5";
+//targetStore = mm.data().createMultipageTIFFDatastore(dirName, false, false); // Create datastore
+targetStore = mm.data().createRAMDatastore(); // Use RAM datastore without saving
+//display = mm.displays().createDisplay(targetStore); // Create displayer for datastore
+
+// File locations (wide field)
+dirName1 = "D:/MSM temp/51";
+//targetStoree = mm.data().createMultipageTIFFDatastore(dirName1, false, false);
+targetStore1 = mm.data().createRAMDatastore();
+//display1 = mm.displays().createDisplay(targetStore1);
+
+cb = Coordinates.builder();
+
+
+
+
+/* Acquire wide field images
+ *  
+ */
+	//TODO: for(int i=0;i<numPositions;i++){     //multiposition snap
+		mm.scripter().message("Acquiring frame "+ i + ",channel 'WF' .");
+		mmc.setCameraDevice("TSICam");
+		mmc.setShutterDevice("Arduino-Shutter");
+		mmc.setExposure(10);
+//		mmc.setConfig(channelGroup,channels[1]);
+//		mmc.waitForConfig(channelGroup,channels[1]);
+//		gui.snapAndAddImage(acqName2,i,1,0,0);
+	   
+	   images = mm.live().snap(false);
+		img = images.get(0);
+
+		
+		coord = cb.c(0).t(0).z(0).p(0);
+		
+		cImg = img.copyAtCoords(coord.build());
+ 		targetStore1.putImage(cImg);
+
+
+/* analyse
+ * 
+ */
+
+/* Sample画像を処理する場合
+ *  
+
+	tempDir = "D:/hela_8bit.tif";
+	ij.io.Opener op = new ij.io.Opener();
+ 	ImagePlus imp = new ImagePlus();
+ 	imp = op.openImage(tempDir);
+ 	//imp.setType(8);
+ 	ip = imp.getProcessor();
+ 	ip.autoThreshold();
+ 	//ip.threshold(64); //8bitに使える
+ 	//ip.setAutoThreshold("Huang"); //16bitだけ使える？
+
+ 	ImagePlus impp = new ImagePlus("imageplus2",ip);
+ */
+
+
+/* 撮影した画像を処理する場合
+
+ */
+	ip = mm.data().ij().createProcessor(img); // convert image into an ImageJ ImageProcessor 
+
+	// threshold treatment //とりあえず10にした
+	ip.threshold(10);
+	//ip.setAutoThreshold("Otsu");
+
+	// Class ImagePlus  //ParticleAnalyzer.analyze()にはImagePlusが必要
+	ImagePlus imp = new ImagePlus("imageplus",ip);
+
+
+
+	/* Class ResultsTable
+	 */
+	ij.measure.ResultsTable rt = new ij.measure.ResultsTable();
+	
+	/* Constructs a ParticleAnalyzer.
+        @param options  a flag word created by Oring SHOW_RESULTS, EXCLUDE_EDGE_PARTICLES, etc. //一応1にした
+        @param measurements a flag word created by ORing constants defined in the Measurements interface //まだ理解できてないが、0にするとsetMeasurementsの通りrtを表示してくれる
+        @param rt       a ResultsTable where the measurements will be stored
+        @param minSize  the smallest particle size in pixels
+        @param maxSize  the largest particle size in pixels //一応大きく設定した
+        @param minCirc  minimum circularity
+        @param maxCirc  maximum circularity
+	public ParticleAnalyzer(int options, int measurements, ResultsTable rt, double minSize, double maxSize, double minCirc, double maxCirc)
+	*/
+	ij.plugin.filter.ParticleAnalyzer pa = new ij.plugin.filter.ParticleAnalyzer(1,0,rt,0,999999,0,1);
+	pa.showDialog(); //showDialogを実施しないと、outlinesなどoutputImageを表示してくれない。最終的にshowDialogの内容を理解して、showしなくてもoutlinesを表示することも必要かも
+	pa.analyze(imp); //analyzeparticleを実行する
+	//paimg = pa.getOutputImage(); //showDialogしない場合、outlinesを表示するためのらしい。しかしワークしない
+	
+	newImg = mm.data().ij().createImage(ip, img.getCoords(), null); // convert ImageProcessor back into a MM Image and display
+	mm.live().displayImage(newImg);
+
+
+
+// Move stage
+Stg() {
+	p = mmc.getXYStagePosition(); // Acquire current stage position
+	x = p.getX(); // Acquire current stage x-axis position
+	y = p.getY(); // Acquire current stage y-axis position
+	mmc.setXYPosition(100, p.getY() + 0.0); // Set stage position (x,y) ***Be Careful the real stage's position!!!
+	mm.app().refreshGUIFromCache();
+	print(p);
+}
+
+// TODO: Multipositon management (Not need yet?)
+MtP() {
+	pl = mm.positions().getPositionList();
+	msp = pl.getPosition(0);
+	msp.goToPosition(msp, mmc);
+}
+
+
+// Acquire high resolution images
+HR() {
+	//TODO: for(int i=0;i<numSlices;i++){    //multiSlice snap
+		for(int j=0;j<channels.length;j++){
+		mm.scripter().message("Acquiring frame '0', channel " +channels[j]+".");
+		mmc.setCameraDevice("DCam");
+		mmc.setShutterDevice(shutters[j]); // switch illumination
+		mmc.setExposure(exposures[j]);
+//		mmc.setConfig(channelGroup,channels[j]);
+//		mmc.waitForConfig(channelGroup,channels[j]);
+//		gui.snapAndAddImage(acqName1,i,j,0,0);
+
+   	images = mm.live().snap(false);
+		img = images.get(0);
+		coord = cb.c(j).t(0).z(0).p(0);
+		cImg = img.copyAtCoords(coord.build());
+ 		targetStore.putImage(cImg);
+		}
+	//TODO: [Z-slice coordination]
+	//}
+}
+
+//WF();
+
+// -------General Roadmap------
+//for(int i=0;i<numFrames;i++){
+	//a = WF();    //wide field snap
+	//Ana(a);
+	//TODO: image passage
+	//TODO: image analysis
+	//TODO: acquire cell coordinate (x,y)
+	//TODO: refresh position list
+	//Stg();    //stage movement
+	//if(i % 2 == 0){   //snap high reso image once every 2 interval time
+		//HR();    //high resolution snap
+	//}
+	//wait(intervalMs);    //interval
+//}
+// ----------------------------
+
+//targetStore.close();
+mm.scripter().message("Done");
+
