@@ -1,8 +1,8 @@
 # MultiScale
 This is a description.
 
-MSMconfig.cfg
+## MSMconfig.cfg  
 The config file for micromanager.
 
-MSMmain.bsh
+## MSMmain.bsh  
 The main of MSM control.
