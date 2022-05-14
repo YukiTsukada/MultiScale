@@ -1,0 +1,90 @@
+import ij.measure.*; // to access ij.measure.ResultsTable
+import ij.ImagePlus;
+import ij.process.ImageProcessor;
+import org.micromanager.internal.MMStudio;
+import org.micromanager.data.Coordinates;
+import org.micromanager.data.Datastore;
+
+
+Double pixel2micro = 0.1764;
+Double XWidth = 4096;
+Double YWidth = 2160;
+Double XCenter = XWidth/2;
+Double YCenter = YWidth/2;
+int intervalMs = 500;
+int NumOfCells = 3;
+
+//*********************************************************   initialize acquisition    ***********************
+// parameters
+channelGroup = "Parts";
+int[] exposures = {100,100};
+String [] channels = {"CSUX 488","CSUX 561"};
+String [] shutters = {"Vincent-D3 488","Vincent-D3 561"};
+Color[] colors = {Color.GREEN,Color.RED};
+
+// get stage information
+STAGE = mm.core().getXYStageDevice();
+//*********************************************************   initialize acquisition end ***********************
+
+/************ 	     Acquire wide field images  **********************/
+	mm.core().setCameraDevice("TSICam");
+//	mm.core().setCameraDevice("Camera");	
+	mm.core().setShutterDevice("Arduino-Shutter");
+	mm.core().setExposure(1000);
+	images = mm.live().snap(true); 
+	img = images.get(0);
+
+	// transform the snap image into ImagePlus for ImageJ function
+	ImageProcessor ImPro = mm.DataManager.ij().createProcessor(img);
+	ImagePlus ImPlu = new ImagePlus("title",ImPro);
+/************ 	     Acquire wide field images  end **********************/		
+
+// ******************     Image Analysis  ********************************
+ij.IJ.setAutoThreshold(ImPlu,"Mean dark");  // set auto threshold
+ij.IJ.run(ImPlu, "Convert to Mask", "");  // make mask image by the thresholded image
+ij.IJ.run("Set Measurements...", "center stack display redirect=None decimal=3"); // set initial condition for set measurements
+ij.IJ.run(ImPlu, "Analyze Particles...", "size=100-Infinity show=Outlines display clear"); // run analyze particles
+ResultsTable RT = ResultsTable.getResultsTable(); // make results table
+int row = RT.getCounter()-1; 
+RT.show("Results");  // show results
+// ******************     Image Analysis end  ********************************
+
+// ******************    Stage Control  ********************************
+for(i=0; i<NumOfCells;i++){
+print(RT.getValueAsDouble(RT.X_CENTER_OF_MASS,i));  // print the i-th X_CENTER_OF_MASS
+print(RT.getValueAsDouble(RT.Y_CENTER_OF_MASS,i));  // print the i-th Y_CENTER_OF_MASS
+
+Double Xcoordi = RT.getValueAsDouble(RT.X_CENTER_OF_MASS,i);  // get x cooridinates in pixel
+Double Ycoordi = RT.getValueAsDouble(RT.Y_CENTER_OF_MASS,i);  // get y cooridinates in pixel
+
+XMove = (XCenter - Xcoordi) * pixel2micro; // transform pixel to micrometer 
+YMove = (YCenter - Ycoordi) * pixel2micro; // transform pixel to micrometer
+
+print("X move");
+print(XMove);
+print("Y move");
+print(YMove);
+
+// move stage
+mm.core().setRelativeXYPosition(STAGE,XMove,YMove);
+mm.core().sleep(intervalMs);
+
+// ******************    Stage Control  end ********************************
+
+
+// Acquire high resolution images   **************************************
+	for(int j=0;j<channels.length;j++){
+	mm.scripter().message("Acquiring frame '0', channel " +channels[j]+".");
+	mm.core().setCameraDevice("Andor");
+	mm.core().setShutterDevice(shutters[0]); // switch illumination
+	mm.core().setExposure(exposures[0]);
+   	List HiRes_images = mm.live().snap(true);
+	}
+// Acquire high resolution images   end  **************************************
+
+
+
+// Goto origin position
+mm.core().setRelativeXYPosition(STAGE,-XMove,-YMove);
+mm.core().sleep(intervalMs);
+}
