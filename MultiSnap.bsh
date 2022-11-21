@@ -175,12 +175,12 @@ STAGE = mm.core().getXYStageDevice();
 	mm.core().setRelativeXYPosition(STAGE,qx*panel_X_width,0); // for X paneling
 	}
 	mm.core().sleep(intervalMs);
-	mm.core().setRelativeXYPosition(STAGE,-panelnumx*panel_X_width,0); // X paneling end 
+	mm.core().setRelativeXYPosition(STAGE,-(panelnumx-1)*panel_X_width,0); // X paneling end 
 	mm.core().sleep(timeinterval);
 	mm.core().setRelativeXYPosition(STAGE,0,qy*panel_Y_width);  // for Y paneling
 	}
 	mm.core().sleep(intervalMs);
-	mm.core().setRelativeXYPosition(STAGE,0,-panelnumy*panel_Y_width); // Y paneling end
+	mm.core().setRelativeXYPosition(STAGE,0,-(panelnumy-1)*panel_Y_width); // Y paneling end
 
 
 // *******  for time lapse	
