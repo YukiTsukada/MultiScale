@@ -25,6 +25,8 @@ int panel_Y_width = 300;
 Double diffmove = 2.0;//2マイクロメーター？うごく
 int StepWide = 1; // acquiring step for widefield images
 int StepHigh = 2; // acquiring step for highresolution images
+int time_indexH = 0;
+int time_indexL = 0;
 
 //*********************************************************   initialize acquisition    ***********************
 // parameters
@@ -105,7 +107,8 @@ for(int t=0;t<timelength;t++){
 		img = images.get(0);
 	
 		// save image into cb _220523gy
-		coord = cb.c(0).t(t).z(0).p(qx+(panelnumx*qy));
+		coord = cb.c(0).t(time_indexL).z(0).p(qx+(panelnumx*qy));
+		time_indexL = time_indexL + 1;
 		cImg = img.copyAtCoords(coord.build());
 	 	StoreWide.putImage(cImg);
 		//************ 	     Acquire wide field images  end **********************
@@ -131,7 +134,7 @@ for(int t=0;t<timelength;t++){
 		// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 		// %%%%%%    don't acquire if condition flag is not 1		
 		else{
-		   mm.core().sleep(intervalMs);		
+		   mm.core().sleep(intervalMs);
 		}
 		// %%%%%%    acquire if condition flag is 1 end 
 		// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%		
@@ -185,7 +188,8 @@ for(int t=0;t<timelength;t++){
 					List HiRes_images = mm.live().snap(true);
 					HiRes_img = HiRes_images.get(0);
 					// save image into cb _220523gy
-					HiRes_coord = cb.c(j).t(t).z(z).p(p+(qx*NumOfCells)+(qy*NumOfCells*panelnumx));//
+					HiRes_coord = cb.c(j).t(time_indexH).z(z).p(p+(qx*NumOfCells)+(qy*NumOfCells*panelnumx));//
+					time_indexH = time_indexH + 1;
 					HiRes_cImg = HiRes_img.copyAtCoords(HiRes_coord.build());
 					StoreHigh.putImage(HiRes_cImg);
 					mm.core().setProperty("Focus","Position",Zmove);
