@@ -60,19 +60,21 @@ Color[] colors = {Color.RED};
 	    print("F:/MSM temp/high" + dTime.toString());	
 	    Atime = dTime.toString();
 	    
-	     //Dateの設定内容のうち１２番目から１９番目を出力
-	    print(Atime.substring(12,19));
+	     //Dateの設定内容のうち１１番目から１９番目を出力
+	    print(Atime.substring(11,19));
 
 // File locations (high reso) _220523gy　
-dirhigh = "G:/MSM temp" + "/"  + Atime.substring(11,12) + Atime.substring(12,13) + Atime.substring(14,15) + Atime.substring(15,16)  
-	+ Atime.substring(17,18) + Atime.substring(18,19) + "high"; //ディレクトリの場所指定…高倍率
+dirhigh = "G:/MSM temp" + "/" + Atime.substring(24,25) + Atime.substring(25,26) + Atime.substring(26,27) + Atime.substring(27,28)
+	    + Atime.substring(4,5) + Atime.substring(5,6) + Atime.substring(6,7) + Atime.substring(8,9) + Atime.substring(9,10)
+		 + "_" + Atime.substring(11,12) + Atime.substring(12,13) + Atime.substring(14,15) + Atime.substring(15,16) + "high"; //ディレクトリの場所指定…高倍率
 StoreHigh = mm.data().createMultipageTIFFDatastore(dirhigh, false, false); // Create datastore
 targetStore = mm.data().createRAMDatastore(); // Use RAM datastore without saving
 DisplayHigh = mm.displays().createDisplay(StoreHigh); // Create displayer for datastore
 
 // File locations (wide field) _220523gy
-dirwide = "G:/MSM temp" + "/"+ Atime.substring(11,12) + Atime.substring(12,13) + Atime.substring(14,15) + Atime.substring(15,16) 
-	+ Atime.substring(17,18) + Atime.substring(18,19) + "wide";//ディレクトリの場所指定…広視野
+dirwide = "G:/MSM temp" + "/" + Atime.substring(24,25) + Atime.substring(25,26) + Atime.substring(26,27) + Atime.substring(27,28)
+	    + Atime.substring(4,5) + Atime.substring(5,6) + Atime.substring(6,7) + Atime.substring(8,9) + Atime.substring(9,10)
+		 + "_" + Atime.substring(11,12) + Atime.substring(12,13) + Atime.substring(14,15) + Atime.substring(15,16) + "wide";//ディレクトリの場所指定…広視野
 StoreWide = mm.data().createMultipageTIFFDatastore(dirwide, false, false);
 targetStore1 = mm.data().createRAMDatastore();
 DisplayWide = mm.displays().createDisplay(StoreWide);
