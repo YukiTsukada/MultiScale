@@ -84,10 +84,8 @@ STAGE = mm.core().getXYStageDevice();
 //*********************************************************   initialize acquisition end ***********************
 
 
-// ******* for time lapse
+// ******* time lapse start *******
 for(int t=0;t<timelength;t++){
-
-	// !!!!!!!!  for time lapse steps   !!!!!!!!!!!!
 	if(t%StepWide == 0){
 	     flagwide = 1;
 	}
@@ -100,64 +98,62 @@ for(int t=0;t<timelength;t++){
 	else{
 	     flaghigh = 0;
 	}
-	// !!!!!!!!  for time lapse steps end  !!!!!!!!!!!!	
+//******* time lapse end *******
 
-//*****************************************************************************************
+
 //**********************   XY paneling start **********************************************
-   for(int qy=0;qy<panelnumy;qy++){	
+for(int qy=0;qy<panelnumy;qy++){
 	for(int qx=0;qx<panelnumx;qx++){
-
 		// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-		// %%%%%%    acquire if condition flag is 1
+		// %%%%%% acquire if condition flag is 1
 		if(flagwide == 1){
-		//************ 	     Acquire wide field images  **********************
-		mm.core().setCameraDevice("TSICam"); //Camera exculusive for MSM wide field
-		//mm.core().setCameraDevice("Camera");	
-		mm.core().setShutterDevice("Arduino-Shutter");
-		//mm.core().setShutterDevice("Shutter");
-		//上の部分はdemoと本番でデバイスを変えること。
-		mm.core().setExposure(1000);
+			//************ Acquire wide field images  **********************
+			mm.core().setCameraDevice("TSICam"); //Camera exculusive for MSM wide field
+			//mm.core().setCameraDevice("Camera");	
+			mm.core().setShutterDevice("Arduino-Shutter");
+			//mm.core().setShutterDevice("Shutter");
+			//上の部分はdemoと本番でデバイスを変えること。
+			mm.core().setExposure(1000);
+			
+			images = mm.live().snap(false); //ture:show image, false:do not show gy230211
+			img = images.get(0);
 	
-		images = mm.live().snap(true); 
-		img = images.get(0);
-	
-		// save image into cb _220523gy
-		coord = cb.c(0).t(time_indexL).z(0).p(qx+(panelnumx*qy));
+			// save image into cb _220523gy
+			coord = cb.c(0).t(time_indexL).z(0).p(qx+(panelnumx*qy));
 
-		cImg = img.copyAtCoords(coord.build());
-	 	StoreWide.putImage(cImg);
-		//************ 	     Acquire wide field images  end **********************
+			cImg = img.copyAtCoords(coord.build());
+	 		StoreWide.putImage(cImg);
+	 		DisplasyWide = mm.displays.show(StoreWide); //show saved wide field images gy230211
+			//************ Acquire wide field images  end **********************
 
-		// transform the snap image into ImagePlus for ImageJ function
-		ImageProcessor ImPro = mm.DataManager.ij().createProcessor(img);
-		ImagePlus ImPlu = new ImagePlus("title",ImPro);
+			// transform the snap image into ImagePlus for ImageJ function
+			ImageProcessor ImPro = mm.DataManager.ij().createProcessor(img);
+			ImagePlus ImPlu = new ImagePlus("title",ImPro);
 
-		// ---------------------     Image Analysis  ------------------------------------
-		//ij.IJ.setAutoThreshold(ImPlu,"Mean dark");  // set auto threshold（閾値）
-		ij.IJ.run(ImPlu, "Smooth", "");
-		ImageStatistics IS = ImageStatistics.getStatistics(ImPro);
-		//getStatistics(area, mean, min, max, std, histogram);		
-		ij.IJ.setThreshold(ImPlu,ThreshWide,65535);
+			// ************ Image Analysis ************
+			//ij.IJ.setAutoThreshold(ImPlu,"Mean dark");  // set auto threshold（閾値）
+			ij.IJ.run(ImPlu, "Smooth", "");
+			ImageStatistics IS = ImageStatistics.getStatistics(ImPro);
+			//getStatistics(area, mean, min, max, std, histogram);		
+			ij.IJ.setThreshold(ImPlu,ThreshWide,65535);
 			if(IS.max > ThreshWide){
-		       	 ij.IJ.run(ImPlu, "Convert to Mask", "");  // make mask image by the thresholded image
-		       	 ij.IJ.run(ImPlu, "Erode", "");
-		       	 ij.IJ.run("Set Measurements...", "center stack display redirect=None decimal=3"); // set initial condition for set measurements
-			       ij.IJ.run(ImPlu, "Analyze Particles...", "size=100-Infinity show=Outlines display clear"); // run analyze particles
-			       ResultsTable RT = ResultsTable.getResultsTable(); // make results table
-			       //public static int row = RT.getCounter()-1;
-			       row = RT.getCounter()-1;
-			       RT.show("Results");  // show results
-			       print("row" + row);
-			       if(row >=1 ){
-			       	      flagCellExist = 1;
-			       }
-			       else{
-					flagCellExist = 0;
-			       }
-			       
+				ij.IJ.run(ImPlu, "Convert to Mask", "");  // make mask image by the thresholded image
+				ij.IJ.run(ImPlu, "Erode", "");
+				ij.IJ.run("Set Measurements...", "center stack display redirect=None decimal=3"); // set initial condition for set measurements
+			   ij.IJ.run(ImPlu, "Analyze Particles...", "size=100-Infinity show=Outlines display clear"); // run analyze particles
+			   ResultsTable RT = ResultsTable.getResultsTable(); // make results table
+			   //public static int row = RT.getCounter()-1;
+			   row = RT.getCounter()-1;
+			   RT.show("Results");  // show results
+			   print("row" + row);
+			   if(row >=1 ){
+			   	flagCellExist = 1;
+			   	}
+			   	else{
+			   		flagCellExist = 0;
+			   		}
 			}
-		// ---------------------     Image Analysis  end ------------------------------------
-
+			// ************ Image Analysis  end ************ 
 		}
 		// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 		// %%%%%%    don't acquire if condition flag is not 1		
@@ -232,13 +228,13 @@ for(int t=0;t<timelength;t++){
 					// *********    Acquire high resolution images _220523gy    **********
 					// define HiRes camera
 					mm.core().setCameraDevice("Andor");//camera exclusive for MSM high reso本番ではこちら。
-					List HiRes_images = mm.live().snap(true);
+					List HiRes_images = mm.live().snap(false); // hide high reso gy230211
 					HiRes_img = HiRes_images.get(0);
 					// save image into cb _220523gy
-					HiRes_coord = cb.c(j).t(time_indexH).z(z).p(p+(qx*NumOfCells)+(qy*NumOfCells*panelnumx));//
-
+					HiRes_coord = cb.c(j).t(time_indexH).z(z).p(p+(qx*NumOfCells)+(qy*NumOfCells*panelnumx));
 					HiRes_cImg = HiRes_img.copyAtCoords(HiRes_coord.build());
 					StoreHigh.putImage(HiRes_cImg);
+					DisplasyHigh = mm.displays.show(StoreHigh); //show saved high reso images gy230211
 					mm.core().setProperty("Focus","Position",Zmove);
 					}
 					// *********  Acquire high resolution images   end  ******************
