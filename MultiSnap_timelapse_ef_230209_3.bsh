@@ -17,9 +17,10 @@ Double XCenter = XWidth/2;
 Double YCenter = YWidth/2;
 int intervalMs = 500;//５００Msまつ
 int timeinterval = 5000;//１０分待つ
-int NumOfCells = 50;//3細胞撮る
-int timelength = 1;//７２回撮る
-int zstacklength = 15;//3スライス動かす
+int NumOfCells = 1;//3細胞撮る
+int timelength = 2;//７２回撮る
+int zstacklength = 4;//3スライス動かす
+int channelsLength = 2; //using channel number mi230217
 int panelnumx = 1;
 int panelnumy = 1;
 int panel_X_width = 600;
@@ -29,12 +30,12 @@ int StepWide = 1; // acquiring step for widefield images
 int StepHigh = 1; // acquiring step for highresolution images
 int time_indexH = 0;
 int time_indexL = 0;
-int ThreshWide = 78; // threshold for cell recognition 
+int ThreshWide = 60; // threshold for cell recognition 
 int flagCellExist;
 int flagwide;
 int flaghigh;
 ResultsTable RT = ResultsTable.getResultsTable(); 
-int ZinitialShift = 8;
+int ZinitialShift = 0;
 //int row = RT.getCounter()-1;
 int row;
 int HighPosNum;
@@ -45,12 +46,12 @@ int HighPosNum;
 // parameters
 channelGroup = "Parts";
 int[] exposures = {100,100};
-//String [] channels = {"CSUX 488","CSUX 561"};
-//String [] shutters = {"Vincent-D3 488","Vincent-D3 561"};
-String [] channels = {"CSUX 561"};
-String [] shutters = {"Vincent-D3 561"};
-//Color[] colors = {Color.GREEN,Color.RED};
-Color[] colors = {Color.RED};
+String [] channels = {"CSUX 488","CSUX 561"};
+String [] shutters = {"Vincent-D3 488","Vincent-D3 561"};
+//String [] channels = {"CSUX 561"};
+//String [] shutters = {"Vincent-D3 561"};
+Color[] colors = {Color.GREEN,Color.RED};
+//Color[] colors = {Color.RED};
 
 //顕微鏡室パソコンではD:/MSM tempをF:/MSM tempにする。
 //Dateオブジェクトを生成する
@@ -66,7 +67,7 @@ Color[] colors = {Color.RED};
 // File locations (high reso) _220523gy　
 dirhigh = "G:/MSM temp" + "/" + Atime.substring(24,25) + Atime.substring(25,26) + Atime.substring(26,27) + Atime.substring(27,28)
 	    + Atime.substring(4,5) + Atime.substring(5,6) + Atime.substring(6,7) + Atime.substring(8,9) + Atime.substring(9,10)
-		 + "_" + Atime.substring(11,12) + Atime.substring(12,13) + Atime.substring(14,15) + Atime.substring(15,16) + "high"; //ディレクトリの場所指定…高倍率
+		 + "_" + Atime.substring(11,12) + Atime.substring(12,13) + Atime.substring(14,15) + Atime.substring(15,16) + Atime.substring(17,18) + Atime.substring(18,19) + "high"; //ディレクトリの場所指定…高倍率
 StoreHigh = mm.data().createMultipageTIFFDatastore(dirhigh, false, false); // Create datastore
 targetStore = mm.data().createRAMDatastore(); // Use RAM datastore without saving
 DisplayHigh = mm.displays().createDisplay(StoreHigh); // Create displayer for datastore
@@ -74,7 +75,7 @@ DisplayHigh = mm.displays().createDisplay(StoreHigh); // Create displayer for da
 // File locations (wide field) _220523gy
 dirwide = "G:/MSM temp" + "/" + Atime.substring(24,25) + Atime.substring(25,26) + Atime.substring(26,27) + Atime.substring(27,28)
 	    + Atime.substring(4,5) + Atime.substring(5,6) + Atime.substring(6,7) + Atime.substring(8,9) + Atime.substring(9,10)
-		 + "_" + Atime.substring(11,12) + Atime.substring(12,13) + Atime.substring(14,15) + Atime.substring(15,16) + "wide";//ディレクトリの場所指定…広視野
+		 + "_" + Atime.substring(11,12) + Atime.substring(12,13) + Atime.substring(14,15) + Atime.substring(15,16) + Atime.substring(17,18) + Atime.substring(18,19) + "wide";//ディレクトリの場所指定…広視野
 StoreWide = mm.data().createMultipageTIFFDatastore(dirwide, false, false);
 targetStore1 = mm.data().createRAMDatastore();
 DisplayWide = mm.displays().createDisplay(StoreWide);
@@ -125,7 +126,8 @@ for(int qy=0;qy<panelnumy;qy++){
 
 			cImg = img.copyAtCoords(coord.build());
 	 		StoreWide.putImage(cImg);
-	 		DisplasyWide = mm.displays.show(StoreWide); //show saved wide field images gy230211
+	 		//DisplasyWide = mm.displays().show(StoreWide); //show saved wide field images gy230211
+	 		//DisplaysWide = mm.displays().show(StoreWide);
 			//************ Acquire wide field images  end **********************
 
 			// transform the snap image into ImagePlus for ImageJ function
@@ -147,7 +149,6 @@ for(int qy=0;qy<panelnumy;qy++){
 			   //public static int row = RT.getCounter()-1;
 			   row = RT.getCounter()-1;
 			   RT.show("Results");  // show results
-			   print("row" + row);
 			   if(row >=1 ){
 			   	flagCellExist = 1;
 			   	}
@@ -168,8 +169,6 @@ for(int qy=0;qy<panelnumy;qy++){
 
 		// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 		// %%%%%%    acquire if condition flag is 1
-		print("flaghigh" + flaghigh);
-		print("flagCellExist" + flagCellExist);
 		if(flaghigh == 1 && flagCellExist ==1){
 		// *****  XY Stage Control for each cell ******
 		
@@ -179,8 +178,6 @@ for(int qy=0;qy<panelnumy;qy++){
 			else{
 			HighPosNum = row;
 			}
-		print(row);
-		print(HighPosNum);
 		//for(p=0; p<NumOfCells;p++){
 		for(p=0; p<HighPosNum;p++){
 			print("here");
@@ -203,10 +200,12 @@ for(int qy=0;qy<panelnumy;qy++){
 			mm.core().sleep(intervalMs);
 
 			// ************ Chanell *********************
-			for(int j=0;j<channels.length;j++){
+			for(int j=0;j<channelsLength;j++){
 				mm.scripter().message("Acquiring frame '0', channel " +channels[j]+".");
-				mm.core().setExposure(exposures[0]);
-				mm.core().setShutterDevice(shutters[0]); // switch illumination
+				//mm.core().setExposure(exposures[0]);
+				//mm.core().setShutterDevice(shutters[0]); // switch illumination
+				mm.core().setExposure(exposures[j]); //for 2 channel mi230217
+				mm.core().setShutterDevice(shutters[j]); //for 2 channel mi230217
 
 				// *************************************
 				mm.core().setProperty("PerfectFocus","State","on");
@@ -221,6 +220,10 @@ for(int qy=0;qy<panelnumy;qy++){
 				for(int z=0;z<zstacklength;z++){
 					height = mm.core().getProperty("Focus","Position");
 					Double heightvalue = Double.parseDouble(height);
+					/*mm.core().setProperty("Focus","Position", height + ZinitialShift); //chenge initial z position mi230217 start
+					heightShifted = mm.core().getProperty("Focus","Position");
+					Double heightvalue = Double.parseDouble(heightShifted); //chenge initial z position mi230217 finish
+					*/
 					print(height.getClass().getSimpleName());
 					print("height");
 					print(height);
@@ -236,7 +239,7 @@ for(int qy=0;qy<panelnumy;qy++){
 					HiRes_coord = cb.c(j).t(time_indexH).z(z).p(p+(qx*NumOfCells)+(qy*NumOfCells*panelnumx));
 					HiRes_cImg = HiRes_img.copyAtCoords(HiRes_coord.build());
 					StoreHigh.putImage(HiRes_cImg);
-					DisplasyHigh = mm.displays.show(StoreHigh); //show saved high reso images gy230211
+					//DisplasyHigh = mm.displays.show(StoreHigh); //show saved high reso images gy230211
 					mm.core().setProperty("Focus","Position",Zmove);
 					}
 					// *********  Acquire high resolution images   end  ******************
@@ -254,6 +257,8 @@ for(int qy=0;qy<panelnumy;qy++){
 
 		// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 		// %%%%%%  don't acquire if condition flag is not 1		
+		time_indexH = time_indexH + 1;	//check必要
+		print("time_indexH" + time_indexH);
 		}
 		else{
 		   mm.core().sleep(intervalMs);		
@@ -263,8 +268,8 @@ for(int qy=0;qy<panelnumy;qy++){
 
 	//mm.core().setRelativeXYPosition(STAGE,panel_X_width,0); // for X paneling
 	mm.core().sleep(intervalMs);
-	ij.IJ.run("Close");
-	ij.IJ.run("Close","Drawing of title");
+	//ij.IJ.run("Close");
+	//ij.IJ.run("Close","Drawing of title");
 	}
 	//mm.core().setRelativeXYPosition(STAGE,-(panelnumx-1)*panel_X_width,0); // X paneling end 
 	mm.core().sleep(intervalMs);
@@ -274,6 +279,6 @@ for(int qy=0;qy<panelnumy;qy++){
 	//mm.core().setRelativeXYPosition(STAGE,0,-panelnumy*panel_Y_width); // Y paneling end
 	mm.core().sleep(timeinterval); //change this line for interval by timestamp
 	time_indexL = time_indexL + 1;
-	time_indexH = time_indexH + 1;	
+	
 // *******  for time lapse	
 }
