@@ -67,14 +67,16 @@ Color[] colors = {Color.GREEN,Color.RED};
 dirhigh = "G:/MSM temp" + "/" + Atime.substring(24,28) + Atime.substring(4,7) + Atime.substring(8,10) 
 	+ "_" + Atime.substring(11,13) + Atime.substring(14,16) + Atime.substring(17,19) + "high"; //ディレクトリの場所指定…高倍率
 
-StoreHigh = mm.data().createMultipageTIFFDatastore(dirhigh, false, false); // Create datastore
+//StoreHigh = mm.data().createMultipageTIFFDatastore(dirhigh, false, false); // Create datastore
+StoreHigh = mm.data().createMultipageTIFFDatastore(dirhigh, true, false);
 targetStore = mm.data().createRAMDatastore(); // Use RAM datastore without saving
 DisplayHigh = mm.displays().createDisplay(StoreHigh); // Create displayer for datastore
 
 // File locations (wide field) _220523gy
 dirwide = "G:/MSM temp" + "/" + Atime.substring(24,28) + Atime.substring(4,7) + Atime.substring(8,10) 
 	+ "_" + Atime.substring(11,13) + Atime.substring(14,16) + Atime.substring(17,19) + "wide";//ディレクトリの場所指定…広視野
-StoreWide = mm.data().createMultipageTIFFDatastore(dirwide, false, false);
+//StoreWide = mm.data().createMultipageTIFFDatastore(dirwide, false, false);
+StoreWide = mm.data().createMultipageTIFFDatastore(dirwide, true, false);
 targetStore1 = mm.data().createRAMDatastore();
 DisplayWide = mm.displays().createDisplay(StoreWide);
 
