@@ -20,7 +20,6 @@ int timeinterval = 5000;//１０分待つ
 int NumOfCells = 1;//3細胞撮る
 int timelength = 2;//７２回撮る
 int zstacklength = 4;//3スライス動かす
-int channelsLength = 2; //using channel number mi230217
 int panelnumx = 1;
 int panelnumy = 1;
 int panel_X_width = 600;
@@ -65,17 +64,16 @@ Color[] colors = {Color.GREEN,Color.RED};
 	    print(Atime.substring(11,19));
 
 // File locations (high reso) _220523gy　
-dirhigh = "G:/MSM temp" + "/" + Atime.substring(24,25) + Atime.substring(25,26) + Atime.substring(26,27) + Atime.substring(27,28)
-	    + Atime.substring(4,5) + Atime.substring(5,6) + Atime.substring(6,7) + Atime.substring(8,9) + Atime.substring(9,10)
-		 + "_" + Atime.substring(11,12) + Atime.substring(12,13) + Atime.substring(14,15) + Atime.substring(15,16) + Atime.substring(17,18) + Atime.substring(18,19) + "high"; //ディレクトリの場所指定…高倍率
+dirhigh = "G:/MSM temp" + "/" + Atime.substring(24,28) + Atime.substring(4,7) + Atime.substring(8,10) 
+	+ "_" + Atime.substring(11,13) + Atime.substring(14,16) + Atime.substring(17,19) + "high"; //ディレクトリの場所指定…高倍率
+
 StoreHigh = mm.data().createMultipageTIFFDatastore(dirhigh, false, false); // Create datastore
 targetStore = mm.data().createRAMDatastore(); // Use RAM datastore without saving
 DisplayHigh = mm.displays().createDisplay(StoreHigh); // Create displayer for datastore
 
 // File locations (wide field) _220523gy
-dirwide = "G:/MSM temp" + "/" + Atime.substring(24,25) + Atime.substring(25,26) + Atime.substring(26,27) + Atime.substring(27,28)
-	    + Atime.substring(4,5) + Atime.substring(5,6) + Atime.substring(6,7) + Atime.substring(8,9) + Atime.substring(9,10)
-		 + "_" + Atime.substring(11,12) + Atime.substring(12,13) + Atime.substring(14,15) + Atime.substring(15,16) + Atime.substring(17,18) + Atime.substring(18,19) + "wide";//ディレクトリの場所指定…広視野
+dirwide = "G:/MSM temp" + "/" + Atime.substring(24,28) + Atime.substring(4,7) + Atime.substring(8,10) 
+	+ "_" + Atime.substring(11,13) + Atime.substring(14,16) + Atime.substring(17,19) + "wide";//ディレクトリの場所指定…広視野
 StoreWide = mm.data().createMultipageTIFFDatastore(dirwide, false, false);
 targetStore1 = mm.data().createRAMDatastore();
 DisplayWide = mm.displays().createDisplay(StoreWide);
@@ -126,8 +124,6 @@ for(int qy=0;qy<panelnumy;qy++){
 
 			cImg = img.copyAtCoords(coord.build());
 	 		StoreWide.putImage(cImg);
-	 		//DisplasyWide = mm.displays().show(StoreWide); //show saved wide field images gy230211
-	 		//DisplaysWide = mm.displays().show(StoreWide);
 			//************ Acquire wide field images  end **********************
 
 			// transform the snap image into ImagePlus for ImageJ function
@@ -200,7 +196,7 @@ for(int qy=0;qy<panelnumy;qy++){
 			mm.core().sleep(intervalMs);
 
 			// ************ Chanell *********************
-			for(int j=0;j<channelsLength;j++){
+			for(int j=0;j<channels.length;j++){
 				mm.scripter().message("Acquiring frame '0', channel " +channels[j]+".");
 				//mm.core().setExposure(exposures[0]);
 				//mm.core().setShutterDevice(shutters[0]); // switch illumination
@@ -239,7 +235,6 @@ for(int qy=0;qy<panelnumy;qy++){
 					HiRes_coord = cb.c(j).t(time_indexH).z(z).p(p+(qx*NumOfCells)+(qy*NumOfCells*panelnumx));
 					HiRes_cImg = HiRes_img.copyAtCoords(HiRes_coord.build());
 					StoreHigh.putImage(HiRes_cImg);
-					//DisplasyHigh = mm.displays.show(StoreHigh); //show saved high reso images gy230211
 					mm.core().setProperty("Focus","Position",Zmove);
 					}
 					// *********  Acquire high resolution images   end  ******************
