@@ -15,21 +15,21 @@ Double XWidth = 4096;
 Double YWidth = 2160;
 Double XCenter = XWidth/2;
 Double YCenter = YWidth/2;
-int intervalMs = 500;//５００Msまつ
-int timeinterval = 5000;//１０分待つ
-int NumOfCells = 1;//3細胞撮る
-int timelength = 2;//７２回撮る
-int zstacklength = 4;//3スライス動かす
+int intervalMs = 500; //wait 500 ms for debug
+int timeinterval = 5000; //wait interval
+int NumOfCells = 1; //Max number of position
+int timelength = 2; //number of timepoint
+int zstacklength = 4; //number of z slices
 int panelnumx = 1;
 int panelnumy = 1;
 int panel_X_width = 600;
 int panel_Y_width = 300;
-Double diffmove = 2.0;//2マイクロメーター？うごく
+Double diffmove = 2.0; //z-step
 int StepWide = 1; // acquiring step for widefield images
 int StepHigh = 1; // acquiring step for highresolution images
 int time_indexH = 0;
 int time_indexL = 0;
-int ThreshWide = 60; // threshold for cell recognition 
+int ThreshWide = 49; // threshold for cell recognition 
 int flagCellExist;
 int flagwide;
 int flaghigh;
@@ -45,27 +45,25 @@ int HighPosNum;
 // parameters
 channelGroup = "Parts";
 int[] exposures = {100,100};
-String [] channels = {"CSUX 488","CSUX 561"};
-String [] shutters = {"Vincent-D3 488","Vincent-D3 561"};
-//String [] channels = {"CSUX 561"};
-//String [] shutters = {"Vincent-D3 561"};
+//String [] channels = {"CSUX 488","CSUX 561"};
+//String [] shutters = {"Vincent-D3 488","Vincent-D3 561"};
 Color[] colors = {Color.GREEN,Color.RED};
-//Color[] colors = {Color.RED};
+String [] parts = {"CSUX 488", "CSUX 561"}; // Preset name of Parts Group mi230313
 
-//顕微鏡室パソコンではD:/MSM tempをF:/MSM tempにする。
-//Dateオブジェクトを生成する
+//change D:/MSM temp to F:/MSM temp in microscope room PC
+//make date object
 	    Date dTime = new Date();
  
-	    //Dateの設定内容を出力
+	    //output the contents of date
 	    print("F:/MSM temp/high" + dTime.toString());	
 	    Atime = dTime.toString();
 	    
-	     //Dateの設定内容のうち１１番目から１９番目を出力
+	    //output the contents of date from 11 to 19
 	    print(Atime.substring(11,19));
 
-// File locations (high reso) _220523gy　
-dirhigh = "G:/MSM temp" + "/" + Atime.substring(24,28) + Atime.substring(4,7) + Atime.substring(8,10) 
-	+ "_" + Atime.substring(11,13) + Atime.substring(14,16) + Atime.substring(17,19) + "high"; //ディレクトリの場所指定…高倍率
+// File locations (high reso) _220523gy
+dirhigh = "F:/MSM temp" + "/" + Atime.substring(24,28) + Atime.substring(4,7) + Atime.substring(8,10) 
+	+ "_" + Atime.substring(11,13) + Atime.substring(14,16) + Atime.substring(17,19) + "high"; //specify the directory of highres
 
 //StoreHigh = mm.data().createMultipageTIFFDatastore(dirhigh, false, false); // Create datastore
 StoreHigh = mm.data().createMultipageTIFFDatastore(dirhigh, true, false);
@@ -73,8 +71,8 @@ targetStore = mm.data().createRAMDatastore(); // Use RAM datastore without savin
 DisplayHigh = mm.displays().createDisplay(StoreHigh); // Create displayer for datastore
 
 // File locations (wide field) _220523gy
-dirwide = "G:/MSM temp" + "/" + Atime.substring(24,28) + Atime.substring(4,7) + Atime.substring(8,10) 
-	+ "_" + Atime.substring(11,13) + Atime.substring(14,16) + Atime.substring(17,19) + "wide";//ディレクトリの場所指定…広視野
+dirwide = "F:/MSM temp" + "/" + Atime.substring(24,28) + Atime.substring(4,7) + Atime.substring(8,10) 
+	+ "_" + Atime.substring(11,13) + Atime.substring(14,16) + Atime.substring(17,19) + "wide";//specify the directory of widefield
 //StoreWide = mm.data().createMultipageTIFFDatastore(dirwide, false, false);
 StoreWide = mm.data().createMultipageTIFFDatastore(dirwide, true, false);
 targetStore1 = mm.data().createRAMDatastore();
@@ -115,7 +113,7 @@ for(int qy=0;qy<panelnumy;qy++){
 			//mm.core().setCameraDevice("Camera");	
 			mm.core().setShutterDevice("Arduino-Shutter");
 			//mm.core().setShutterDevice("Shutter");
-			//上の部分はdemoと本番でデバイスを変えること。
+			//the above part is to change the Device between demo and production
 			mm.core().setExposure(1000);
 			
 			images = mm.live().snap(false); //ture:show image, false:do not show gy230211
@@ -133,7 +131,7 @@ for(int qy=0;qy<panelnumy;qy++){
 			ImagePlus ImPlu = new ImagePlus("title",ImPro);
 
 			// ************ Image Analysis ************
-			//ij.IJ.setAutoThreshold(ImPlu,"Mean dark");  // set auto threshold（閾値）
+			//ij.IJ.setAutoThreshold(ImPlu,"Mean dark");  // set auto threshold
 			ij.IJ.run(ImPlu, "Smooth", "");
 			ImageStatistics IS = ImageStatistics.getStatistics(ImPro);
 			//getStatistics(area, mean, min, max, std, histogram);		
@@ -198,12 +196,14 @@ for(int qy=0;qy<panelnumy;qy++){
 			mm.core().sleep(intervalMs);
 
 			// ************ Chanell *********************
-			for(int j=0;j<channels.length;j++){
-				mm.scripter().message("Acquiring frame '0', channel " +channels[j]+".");
+			for(int j=0;j<parts.length;j++){
+				mm.scripter().message("Acquiring frame '0', channel " +parts[j]+".");
 				//mm.core().setExposure(exposures[0]);
 				//mm.core().setShutterDevice(shutters[0]); // switch illumination
 				mm.core().setExposure(exposures[j]); //for 2 channel mi230217
-				mm.core().setShutterDevice(shutters[j]); //for 2 channel mi230217
+				//mm.core().setShutterDevice(shutters[j]); //for 2 channel mi230217
+				mmc.setConfig("Parts", parts[j]); //for 2 channel mi230313
+				mm.app().refreshGUIFromCache(); //for 2 channel mi230313
 
 				// *************************************
 				mm.core().setProperty("PerfectFocus","State","on");
@@ -230,7 +230,7 @@ for(int qy=0;qy<panelnumy;qy++){
 					// *******************************************************************
 					// *********    Acquire high resolution images _220523gy    **********
 					// define HiRes camera
-					mm.core().setCameraDevice("Andor");//camera exclusive for MSM high reso本番ではこちら。
+					mm.core().setCameraDevice("Andor");//camera exclusive for MSM high reso (use this in production)
 					List HiRes_images = mm.live().snap(false); // hide high reso gy230211
 					HiRes_img = HiRes_images.get(0);
 					// save image into cb _220523gy
@@ -254,7 +254,7 @@ for(int qy=0;qy<panelnumy;qy++){
 
 		// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 		// %%%%%%  don't acquire if condition flag is not 1		
-		time_indexH = time_indexH + 1;	//check必要
+		time_indexH = time_indexH + 1;	//need check
 		print("time_indexH" + time_indexH);
 		}
 		else{

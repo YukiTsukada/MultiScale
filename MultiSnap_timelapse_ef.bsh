@@ -14,16 +14,16 @@ Double XWidth = 4096;
 Double YWidth = 2160;
 Double XCenter = XWidth/2;
 Double YCenter = YWidth/2;
-int intervalMs = 500;//‚T‚O‚OMs‚Ü‚Â
-int timeinterval = 5000;//‚P‚O•ª‘Ò‚Â
-int NumOfCells = 10;//3×–EB‚é
-int timelength = 21000;//‚V‚Q‰ñB‚é
-int zstacklength = 15;//3ƒXƒ‰ƒCƒX“®‚©‚·
+int intervalMs = 500;//ï¿½Tï¿½Oï¿½OMsï¿½Ü‚ï¿½
+int timeinterval = 5000;//ï¿½Pï¿½Oï¿½ï¿½ï¿½Ò‚ï¿½
+int NumOfCells = 10;//3ï¿½×–Eï¿½Bï¿½ï¿½
+int timelength = 21000;//ï¿½Vï¿½Qï¿½ï¿½Bï¿½ï¿½
+int zstacklength = 15;//3ï¿½Xï¿½ï¿½ï¿½Cï¿½Xï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 int panelnumx = 1;
 int panelnumy = 1;
 int panel_X_width = 600;
 int panel_Y_width = 300;
-Double diffmove = 2.0;//2ƒ}ƒCƒNƒƒ[ƒ^[H‚¤‚²‚­
+Double diffmove = 2.0;//2ï¿½}ï¿½Cï¿½Nï¿½ï¿½ï¿½ï¿½ï¿½[ï¿½^ï¿½[ï¿½Hï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 int StepWide = 1; // acquiring step for widefield images
 int StepHigh = 1; // acquiring step for highresolution images
 int time_indexH = 0;
@@ -44,25 +44,25 @@ String [] shutters = {"Vincent-D3 561"};
 //Color[] colors = {Color.GREEN,Color.RED};
 Color[] colors = {Color.RED};
 
-//Œ°”÷‹¾ºƒpƒ\ƒRƒ“‚Å‚ÍD:/MSM temp‚ğF:/MSM temp‚É‚·‚éB
-//DateƒIƒuƒWƒFƒNƒg‚ğ¶¬‚·‚é
+//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½pï¿½\ï¿½Rï¿½ï¿½ï¿½Å‚ï¿½D:/MSM tempï¿½ï¿½F:/MSM tempï¿½É‚ï¿½ï¿½ï¿½B
+//Dateï¿½Iï¿½uï¿½Wï¿½Fï¿½Nï¿½gï¿½ğ¶ï¿½ï¿½ï¿½ï¿½ï¿½
 	    Date dTime = new Date();
  
-	    //Date‚Ìİ’è“à—e‚ğo—Í
+	    //Dateï¿½Ìİ’ï¿½ï¿½ï¿½eï¿½ï¿½ï¿½oï¿½ï¿½
 	    print("F:/MSM temp/high" + dTime.toString());	
 	    Atime = dTime.toString();
 	    
-	     //Date‚Ìİ’è“à—e‚Ì‚¤‚¿‚P‚Q”Ô–Ú‚©‚ç‚P‚X”Ô–Ú‚ğo—Í
+	     //Dateï¿½Ìİ’ï¿½ï¿½ï¿½eï¿½Ì‚ï¿½ï¿½ï¿½ï¿½Pï¿½Qï¿½Ô–Ú‚ï¿½ï¿½ï¿½Pï¿½Xï¿½Ô–Ú‚ï¿½ï¿½oï¿½ï¿½
 	    print(Atime.substring(12,19));
 
-// File locations (high reso) _220523gy@
-dirhigh = "F:/MSM temp" + "/"  + Atime.substring(11,12) + Atime.substring(12,13) + Atime.substring(14,15) + Atime.substring(15,16)  + "high"; //ƒfƒBƒŒƒNƒgƒŠ‚ÌêŠw’èc‚”{—¦
+// File locations (high reso) _220523gyï¿½@
+dirhigh = "F:/MSM temp" + "/"  + Atime.substring(11,12) + Atime.substring(12,13) + Atime.substring(14,15) + Atime.substring(15,16)  + "high"; //ï¿½fï¿½Bï¿½ï¿½ï¿½Nï¿½gï¿½ï¿½ï¿½ÌêŠï¿½wï¿½ï¿½cï¿½ï¿½ï¿½{ï¿½ï¿½
 StoreHigh = mm.data().createMultipageTIFFDatastore(dirhigh, false, false); // Create datastore
 targetStore = mm.data().createRAMDatastore(); // Use RAM datastore without saving
 DisplayHigh = mm.displays().createDisplay(StoreHigh); // Create displayer for datastore
 
 // File locations (wide field) _220523gy
-dirwide = "F:/MSM temp" + "/"+ Atime.substring(11,12) + Atime.substring(12,13) + Atime.substring(14,15) + Atime.substring(15,16) + "wide";//ƒfƒBƒŒƒNƒgƒŠ‚ÌêŠw’ècL‹–ì
+dirwide = "F:/MSM temp" + "/"+ Atime.substring(11,12) + Atime.substring(12,13) + Atime.substring(14,15) + Atime.substring(15,16) + "wide";//ï¿½fï¿½Bï¿½ï¿½ï¿½Nï¿½gï¿½ï¿½ï¿½ÌêŠï¿½wï¿½ï¿½cï¿½Lï¿½ï¿½ï¿½ï¿½
 StoreWide = mm.data().createMultipageTIFFDatastore(dirwide, false, false);
 targetStore1 = mm.data().createRAMDatastore();
 DisplayWide = mm.displays().createDisplay(StoreWide);
@@ -105,7 +105,7 @@ for(int t=0;t<timelength;t++){
 		//mm.core().setCameraDevice("Camera");	
 		mm.core().setShutterDevice("Arduino-Shutter");
 		//mm.core().setShutterDevice("Shutter");
-		//ã‚Ì•”•ª‚Ídemo‚Æ–{”Ô‚ÅƒfƒoƒCƒX‚ğ•Ï‚¦‚é‚±‚ÆB
+		//ï¿½ï¿½Ì•ï¿½ï¿½ï¿½ï¿½ï¿½demoï¿½Æ–{ï¿½Ô‚Åƒfï¿½oï¿½Cï¿½Xï¿½ï¿½Ï‚ï¿½ï¿½é‚±ï¿½ÆB
 		mm.core().setExposure(1000);
 	
 		images = mm.live().snap(true); 
@@ -123,7 +123,7 @@ for(int t=0;t<timelength;t++){
 		ImagePlus ImPlu = new ImagePlus("title",ImPro);
 
 		// ---------------------     Image Analysis  ------------------------------------
-		//ij.IJ.setAutoThreshold(ImPlu,"Mean dark");  // set auto thresholdiè‡’lj
+		//ij.IJ.setAutoThreshold(ImPlu,"Mean dark");  // set auto thresholdï¿½iè‡’lï¿½j
 		ij.IJ.run(ImPlu, "Smooth", "");
 		ImageStatistics IS = ImageStatistics.getStatistics(ImPro);
 		//getStatistics(area, mean, min, max, std, histogram);		
@@ -200,7 +200,7 @@ for(int t=0;t<timelength;t++){
 					// *******************************************************************
 					// *********    Acquire high resolution images _220523gy    **********
 					// define HiRes camera
-					mm.core().setCameraDevice("Andor");//camera exclusive for MSM high reso–{”Ô‚Å‚Í‚±‚¿‚çB
+					mm.core().setCameraDevice("Andor");//camera exclusive for MSM high resoï¿½{ï¿½Ô‚Å‚Í‚ï¿½ï¿½ï¿½ï¿½ï¿½B
 					List HiRes_images = mm.live().snap(true);
 					HiRes_img = HiRes_images.get(0);
 					// save image into cb _220523gy
